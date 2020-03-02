@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Welcome to CarpetGen</title>
+	</head>
+	<body>
+		<div id="app">
+			<ul>
+				<li v-for="c in carpets">
+					{{ c.name }}: {{ c.w  }}x{{ c.h }}
+					<span v-if="c.w === 0 || c.h === 0">- INVALID</span>
+				</li>
+			</ul>
+		</div>
+		<script src="https://unpkg.com/vue"></script>
+		<script>
+			const app = new Vue({
+				el: '#app',
+				data: {
+					carpets: []
+				},
+				created() {
+					fetch('http://localhost:5000/carpets')
+						.then(response =>
+							response.json())
+							.then(json => {
+								this.carpets =
+									json
+							})
+				}
+			})
+		</script>
+	</body>
+</html>
