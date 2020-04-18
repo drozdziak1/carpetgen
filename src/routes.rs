@@ -1,5 +1,5 @@
-use actix_web::{get, web, HttpResponse, Responder};
 use actix_files::NamedFile;
+use actix_web::{get, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -13,13 +13,6 @@ struct Carpet {
     pub y: f64,
     pub w: f64, // longitude
     pub h: f64, // latitude
-}
-
-#[get("/")]
-async fn index() -> impl Responder {
-    let p: PathBuf = "static/index.html".parse().unwrap();
-
-    NamedFile::open(p)
 }
 
 #[get("/carpets")]
@@ -39,6 +32,6 @@ async fn carpets() -> impl Responder {
 }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(index);
+    //cfg.service(index);
     cfg.service(carpets);
 }
