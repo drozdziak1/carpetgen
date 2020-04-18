@@ -4,6 +4,9 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<title>Welcome to CarpetGen</title>
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+				       integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+				       crossorigin=""/>
 	</head>
 	<body>
 		<div id="app">
@@ -11,15 +14,31 @@
 				<li v-for="c in carpets">
 					{{ c.name }}: {{ c.w  }}x{{ c.h }}
 					<span v-if="c.w === 0 || c.h === 0">- INVALID</span>
+					<button @click="c.w += 1">Add</button>
 				</li>
 			</ul>
+			<h2>Total: {{ totalCarpets }} carpets</h2>
 		</div>
+		<div id="mapid" ></div>
+		<style>
+#mapid {
+	height: 500px;
+	width: 50%;
+}
+		</style>
 		<script src="https://unpkg.com/vue"></script>
 		<script>
 			const app = new Vue({
 				el: '#app',
 				data: {
 					carpets: []
+				},
+				computed: {
+					totalCarpets() {
+						return this.carpets.reduce((sum,
+							carpet) => {return sum +
+									1}, 0)
+					}
 				},
 				created() {
 					fetch('http://localhost:5000/carpets')
@@ -32,5 +51,16 @@
 				}
 			})
 		</script>
+		<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+			integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+			crossorigin=""></script>
+		<script>
+			var mymap = L.map('mapid').setView([52.237049, 21.017532], 11);
+L.tileLayer('http://localhost:8080/styles/basic-preview/{z}/{x}/{y}.png',
+	{
+		attribution: 'Tiles generated with <a href="https://openmaptiles.org/">OpenMapTiles</a> | Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+	}).addTo(mymap);
+		</script>
+
 	</body>
 </html>
