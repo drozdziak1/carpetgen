@@ -1,4 +1,5 @@
 const path = require('path');
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
   mode: 'development',
@@ -14,6 +15,7 @@ module.exports = {
         use: [
           // Creates `style` nodes from JS strings
           'style-loader',
+          'vue-style-loader',
           // Translates CSS into CommonJS
           'css-loader',
           // Compiles Sass to CSS
@@ -28,6 +30,18 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.vue$/i,
+        loader: 'vue-loader'
+      }
     ],
+  },
+  plugins: [
+    new VueLoaderPlugin()
+  ],
+  resolve: {
+    alias: {
+      'vue$': 'vue/dist/vue.esm.js' // 'vue/dist/vue.common.js' for webpack 1
+    }
   }
 };

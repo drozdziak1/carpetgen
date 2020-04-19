@@ -16,11 +16,15 @@
     "sass": "^1.26.3",
     "sass-loader": "^8.0.2",
     "style-loader": "^1.1.4",
+    "vue-loader": "^15.9.1",
+    "vue-template-compiler": "^2.6.11",
+    "vue-template-loader": "^1.1.0",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
     "leaflet": "^1.6.0",
-    "leaflet-areaselect": "https://github.com/heyman/leaflet-areaselect"
+    "leaflet-areaselect": "https://github.com/heyman/leaflet-areaselect",
+    "vue": "^2.6.11"
   }
 }

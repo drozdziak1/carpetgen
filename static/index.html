@@ -4,45 +4,9 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<title>Welcome to CarpetGen</title>
-		<link rel="stylesheet" href="main.css"/>
 	</head>
 	<body>
-		<div id="app">
-			<ul>
-				<li v-for="c in carpets">
-					{{ c.name }}: {{ c.w  }}x{{ c.h }}
-					<span v-if="c.w === 0 || c.h === 0">- INVALID</span>
-					<button @click="c.w += 1">Add</button>
-				</li>
-			</ul>
-			<h2>Total: {{ totalCarpets }} carpets</h2>
-		</div>
-		<div id="map" ></div>
+		<div id="app"></div>
 		<script src="main.js"></script>
-		<script src="https://unpkg.com/vue"></script>
-		<script>
-			const app = new Vue({
-				el: '#app',
-				data: {
-					carpets: []
-				},
-				computed: {
-					totalCarpets() {
-						return this.carpets.reduce((sum,
-							carpet) => {return sum +
-									1}, 0)
-					}
-				},
-				created() {
-					fetch('http://localhost:5000/carpets')
-						.then(response =>
-							response.json())
-							.then(json => {
-								this.carpets =
-									json
-							})
-				}
-			})
-		</script>
 	</body>
 </html>
