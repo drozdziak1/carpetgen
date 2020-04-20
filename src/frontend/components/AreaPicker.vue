@@ -1,35 +1,27 @@
 <template>
-<div id="map" ref="mapElement"></div>
+<div id="area-picker" ref="areaPickerEl">
+<p>Choose carpet shape and orientation</p>
+<select id="carpet-shape-dropdown" v-model="aspectRatio" >
+<option value="1:1">1:1</option>
+<option value="2:1">2:1</option>
+<option value="4:3">4:3</option>
+</select>
+<label><input type="checkbox" v-model="isVertical"> Vertical</label>
+<Map :aspect-ratio="aspectRatio" :is-vertical="isVertical" :unit=250 />
+</div>
 </template>
 
 <script>
-import L from 'leaflet';
-import 'leaflet-areaselect/src/leaflet-areaselect.js';
-
-
+import Map from './Map.vue';
 export default {
-  mounted() {
-
-    var map = L.map(this.$refs['mapElement']).setView([52.237049, 21.017532], 11);
-
-    L.tileLayer('http://localhost:8080/styles/basic-preview/{z}/{x}/{y}.png',
-	{
-attribution: 'Tiles generated with <a href="https://openmaptiles.org/">OpenMapTiles</a> | Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
-}).addTo(map);
-
-
-var areaSelect = L.areaSelect({width: 400, height: 400, keepAspectRatio: true});
-areaSelect.addTo(map);
-
-
-var bounds = areaSelect.getBounds();
-
-console.log("Bounds: ", bounds);
-
-// Get a callback when the bounds change
-areaSelect.on("change", function() {
-    console.log("Bounds:", this.getBounds());
-    });
-},
-  }
+	data() {
+		return {
+aspectRatio: "4:3",
+	       isVertical: true
+		}
+	},
+components: {
+		    Map
+	    }
+}
 </script>
