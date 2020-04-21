@@ -7,7 +7,7 @@
       <option value="4:3">4:3</option>
     </select>
     <label><input type="checkbox" v-model="isVertical" /> Vertical</label>
-    <Map :aspect-ratio="aspectRatio" :is-vertical="isVertical" :unit="250" />
+    <Map :aspect-ratio="aspectRatio" :is-vertical="isVertical" :unit="200" />
   </div>
 </template>
 
