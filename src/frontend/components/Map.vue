@@ -13,30 +13,33 @@ export default {
       map: null
     };
   },
+  computed: {
+    dimensions: function() {
+      var splitRatio = this.aspectRatio.split(":");
+      var n = splitRatio[0];
+      var d = splitRatio[1];
+
+      return {
+        width: this.isVertical ? this.unit : (this.unit * n) / d,
+        height: this.isVertical ? (this.unit * n) / d : this.unit
+      };
+    }
+  },
   props: {
     aspectRatio: String,
     isVertical: Boolean,
     unit: Number
   },
   watch: {
-    aspectRatio: function(newRatio, oldRatio) {
-      var splitRatio = newRatio.split(":");
-      var n = splitRatio[0]; // numerator
-      var d = splitRatio[1]; // denominator
-
-      var w = this.isVertical ? this.unit : (this.unit * n) / d;
-      var h = this.isVertical ? (this.unit * n) / d : this.unit;
-      this.areaSelect.setDimensions({ width: w, height: h });
+    aspectRatio: function() {
+      this.areaSelect.setDimensions(this.dimensions);
     },
-    isVertical: function(newValue, oldValue) {
-      // Flip areaSelect's dimensions when isVertical is toggled
-      this.areaSelect.setDimensions({
-        width: this.areaSelect._height,
-        height: this.areaSelect._width
-      });
+    isVertical: function() {
+      this.areaSelect.setDimensions(this.dimensions);
     }
   },
   mounted() {
+    // Prepare a map with areaSelect
     var map = L.map(this.$refs["mapEl"]).setView([52.237049, 21.017532], 11);
 
     L.tileLayer("http://localhost:8080/styles/basic-preview/{z}/{x}/{y}.png", {
