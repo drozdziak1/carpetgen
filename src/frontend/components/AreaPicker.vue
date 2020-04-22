@@ -7,7 +7,12 @@
       <option value="4:3">4:3</option>
     </select>
     <label><input type="checkbox" v-model="isVertical" /> Vertical</label>
-    <Map :aspect-ratio="aspectRatio" :is-vertical="isVertical" :unit="200" />
+    <Map
+      :aspect-ratio="aspectRatio"
+      :is-vertical="isVertical"
+      :unit="200"
+      @area-change="updateAreaData"
+    />
   </div>
 </template>
 
@@ -24,11 +29,16 @@ export default {
   data() {
     return {
       aspectRatio: "4:3",
-      isVertical: true
+      isVertical: true,
     };
   },
   components: {
     Map
+  },
+  methods: {
+    updateAreaData: function(areaData) {
+      this.$emit("input", areaData);
+    }
   }
 };
 </script>

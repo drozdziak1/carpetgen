@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <h1>CarpetGen</h1>
-    <AreaPicker />
-    <PickerResults />
+    <AreaPicker v-model="areaData" />
+    <PickerResults v-model="areaData" />
   </div>
 </template>
 
@@ -14,6 +14,11 @@ export default {
   components: {
     AreaPicker,
     PickerResults
+  },
+  data: function() {
+    return {
+      areaData: null
+    };
   }
 };
 </script>

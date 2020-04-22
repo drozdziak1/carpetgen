@@ -10,7 +10,8 @@ export default {
   data() {
     return {
       areaSelect: null,
-      map: null
+      map: null,
+      bounds: null
     };
   },
   computed: {
@@ -35,7 +36,11 @@ export default {
       this.areaSelect.setDimensions(this.dimensions);
     },
     isVertical: function() {
-      this.areaSelect.setDimensions(this.dimensions);
+      // Not using this.dimensions because it messes up the scaling
+      this.areaSelect.setDimensions({
+        width: this.areaSelect._height,
+        height: this.areaSelect._width
+      });
     }
   },
   mounted() {
@@ -64,10 +69,14 @@ export default {
 
     console.log("Bounds: ", bounds);
 
-    // Get a callback when the bounds change
+    var comp = this;
     areaSelect.on("change", function() {
-      console.log("Bounds:", this.getBounds());
+      var bounds = this.getBounds();
+      console.log("Bounds:", bounds);
+      console.log("Zoom: ", map.getZoom());
+      comp.$emit("area-change", { bounds: bounds, zoom: map.getZoom() });
     });
+
     this.areaSelect = areaSelect;
     this.map = map;
   }
