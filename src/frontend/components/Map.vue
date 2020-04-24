@@ -45,7 +45,10 @@ export default {
   },
   mounted() {
     // Prepare a map with areaSelect
-    var map = L.map(this.$refs["mapEl"]).setView([52.237049, 21.017532], 11);
+    var map = L.map(this.$refs["mapEl"], { minZoom: 7, maxZoom: 14 }).setView(
+      [52.237049, 21.017532],
+      11
+    );
 
     L.tileLayer("http://localhost:8080/styles/basic-preview/{z}/{x}/{y}.png", {
       attribution:

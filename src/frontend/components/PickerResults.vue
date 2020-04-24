@@ -3,11 +3,15 @@
     <h2>Results</h2>
     <div id="result-data">
       <p v-if="value === null">Select an area</p>
-      <p v-else>
-        North-west: {{ value.bounds.getNorthWest() }}<br />
-        Zoom: {{ value.zoom }}<br />
-      </p>
-      <svg id="nw-tile"></svg>
+      <div v-else>
+        <p>
+          North-west: {{ value.bounds.getNorthWest() }}<br />
+          Zoom: {{ value.zoom }}<br />
+        </p>
+        <button v-on:click="incZoom">Detail +</button>
+        <button v-on:click="decZoom">Detail -</button>
+        <svg id="nw-tile"></svg>
+      </div>
     </div>
   </div>
 </template>
@@ -16,6 +20,10 @@
 #picker-results {
   float: left;
   width: 50%;
+}
+#nw-tile {
+  width: 300px;
+  height: 300px;
 }
 </style>
 
@@ -58,38 +66,45 @@ export default {
           2) *
           Math.pow(2, zoom)
       );
-    }
-  },
-  watch: {
-    value: function(newVal, oldVal) {
-      var width = 300;
-      var height = 300;
+    },
+    incZoom: function() {
+      if (this.value.zooom <= 14) {
+        this.value.zoom += 1;
+      }
+    },
+    decZoom: function() {
+      if (this.value.zoom > 1) {
+        this.value.zoom -= 1;
+      }
+    },
+    svgRenderTiles: function(bounds, zoom) {
+      var width = 100;
+      var height = 100;
       var svg = d3.select("#nw-tile").attr("viewBox", [0, 0, width, height]);
 
-      var nw = newVal.bounds.getNorthWest();
-      var zoom = newVal.zoom;
+      var nw = bounds.getNorthWest();
 
       var projection = geoMercator()
         .center([nw.lng, nw.lat])
-        .scale(Math.pow(2, zoom + 9) / (2 * Math.PI))
+        .scale(Math.pow(2, zoom + 8) / (2 * Math.PI))
         .translate([width / 2, height / 2])
+        /*.translate([width, height])*/
         .precision(0);
 
       svg
         .append("rect")
-        .attr("width", "100%")
-        .attr("height", "100%")
+        .attr("width", width)
+        .attr("height", height)
         .attr("fill", "#f6f4e7");
 
       var tile = d3Tile()
         .size([width, height])
         .scale(projection.scale() * 2 * Math.PI)
         .translate(projection([0, 0]))
-        .tileSize(512);
+        .tileSize(256);
 
       var tiles = Promise.all(
         tile().map(async d => {
-console.log("tile zoom", d[2])
           const tileUrl = `http://localhost:8080/data/v3/${d[2]}/${d[0]}/${
             d[1]
           }.pbf`;
@@ -97,12 +112,15 @@ console.log("tile zoom", d[2])
             new Protobuf(await d3Buffer(tileUrl))
           ).layers;
           d.url = tileUrl;
+          console.log(d.layers);
           return d;
         })
       );
 
       tiles.map(d => {
+        drawLandUse(svg, d);
         drawRoads(svg, d);
+        drawBuildings(svg, d);
       });
 
       function drawRoads(svg, d) {
@@ -114,8 +132,7 @@ console.log("tile zoom", d[2])
 
         const features = filter(geojson(d, d.layers.transportation), p => {
           return (
-            !p.properties.bridge &&
-            !p.properties.tunnel
+            !p.properties.bridge && !p.properties.tunnel
             /* &&
              *(p.properties.tracktype === 1 ||
              *  p.properties.class.match(
@@ -128,14 +145,30 @@ console.log("tile zoom", d[2])
         g.append("path")
           .datum(features)
           .attr("d", geoPath().projection(projection))
-          .attr("stroke", "#777")
-          .attr("stroke-width", "6");
+          .attr("stroke", "#777");
+        /*.attr("stroke-width", "1");*/
 
         g.append("path")
           .datum(features)
           .attr("d", d3.geoPath().projection(projection))
-          .attr("stroke", "#fff")
-          .attr("stroke-width", "4");
+          .attr("stroke", "#fff");
+        /*.attr("stroke-width", "3");*/
+      }
+
+      function drawBuildings(svg, d) {
+        const g = svg.append("g");
+        g.append("path")
+          .datum(geojson(d, d.layers.building))
+          .attr("d", d3.geoPath().projection(projection))
+          .attr("fill", "#888");
+      }
+
+      function drawLandUse(svg, d) {
+        const g = svg.append("g");
+        g.append("path")
+          .datum(geojson(d, d.layers.landuse))
+          .attr("d", d3.geoPath().projection(projection))
+          .attr("fill", "#ddd");
       }
 
       function geojson([x, y, z], layer, filter = () => true) {
@@ -146,13 +179,20 @@ console.log("tile zoom", d[2])
           if (filter.call(null, f, i, features)) features.push(f);
         }
         var ret = { type: "FeatureCollection", features };
-        console.log(ret);
         return ret;
       }
 
       function filter({ features }, test) {
         return { type: "FeatureCollection", features: features.filter(test) };
       }
+    }
+  },
+  watch: {
+    "value.bounds": function(newVal, oldVal) {
+      this.svgRenderTiles(newVal, this.value.zoom);
+    },
+    "value.zoom": function(newVal, oldVal) {
+      this.svgRenderTiles(this.value.bounds, newVal);
     }
   }
 };
