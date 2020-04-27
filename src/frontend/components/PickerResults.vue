@@ -6,7 +6,7 @@
       <div v-else>
         <p>
           Center: {{ value.bounds.getCenter() }}<br />
-          Zoom: {{ value.zoom }}<br />
+          Zoom: {{ value.zoom }} + {{ zoomDelta }}<br />
         </p>
         <button v-on:click="incZoom">Detail +</button>
         <button v-on:click="decZoom">Detail -</button>
@@ -33,27 +33,31 @@ import * as Promise from "bluebird";
 import Protobuf from "pbf";
 import { VectorTile } from "@mapbox/vector-tile";
 
+import aspectToWH from "../util.js";
+
 export default {
   data: function() {
-    return {};
+    return {
+      zoomDelta: 0
+    };
   },
   props: {
-    value: Object
+    value: Object,
+    unit: Number
   },
   methods: {
     incZoom: function() {
-      if (this.value.zoom < 14) {
-        this.value.zoom += 1;
+      if (this.value.zoom + this.zoomDelta < 14) {
+        this.zoomDelta += 1;
       }
     },
     decZoom: function() {
-      if (this.value.zoom > 7) {
-        this.value.zoom -= 1;
+      if (this.value.zoom + this.zoomDelta > 7) {
+        this.zoomDelta -= 1;
       }
     },
-    svgRenderTiles: function(bounds, zoom) {
-      var width = 300;
-      var height = 300;
+    svgRenderTiles: function(bounds, zoom, zoomDelta, width, height) {
+      console.log(`width: ${width}, height: ${height}`);
       var svg = d3
         .select("#center-tile")
         .attr("viewBox", [0, 0, width, height])
@@ -76,9 +80,10 @@ export default {
 
       var tile = d3Tile()
         .size([width, height])
-        .scale(projection.scale() * 2 * Math.PI)
+        .scale(projection.scale() * Math.PI * 2)
         .translate(projection([0, 0]))
-        .tileSize(256);
+        .tileSize(256)
+        .zoomDelta(zoomDelta);
 
       var tiles = Promise.all(
         tile().map(async d => {
@@ -89,7 +94,6 @@ export default {
             new Protobuf(await d3Buffer(tileUrl))
           ).layers;
           d.url = tileUrl;
-          console.log(d.layers);
           return d;
         })
       );
@@ -166,10 +170,70 @@ export default {
   },
   watch: {
     "value.bounds": function(newVal, oldVal) {
-      this.svgRenderTiles(newVal, this.value.zoom);
+      var { width, height } = aspectToWH(
+        this.value.aspectRatio,
+        this.value.isVertical,
+        this.unit
+      );
+      this.svgRenderTiles(
+        newVal,
+        this.value.zoom,
+        this.zoomDelta,
+        width,
+        height
+      );
     },
     "value.zoom": function(newVal, oldVal) {
-      this.svgRenderTiles(this.value.bounds, newVal);
+      var { width, height } = aspectToWH(
+        this.value.aspectRatio,
+        this.value.isVertical,
+        this.unit
+      );
+      this.svgRenderTiles(
+        this.value.bounds,
+        newVal,
+        this.zoomDelta,
+        width,
+        height
+      );
+    },
+    "value.aspectRatio": function(newVal, oldVal) {
+      var { width, height } = aspectToWH(
+        newVal,
+        this.value.isVertical,
+        this.unit
+      );
+      this.svgRenderTiles(
+        this.value.bounds,
+        this.value.zoom,
+        this.zoomDelta,
+        width,
+        height
+      );
+    },
+    "value.isVErtical": function(newVal, oldVal) {
+      var { width, height } = aspectToWH(newVal, newVal, this.unit);
+      this.svgRenderTiles(
+        this.value.bounds,
+        this.value.zoom,
+        this.zoomDelta,
+        width,
+        height
+      );
+    },
+    zoomDelta: function(newVal, oldVal) {
+      var { width, height } = aspectToWH(
+        this.value.aspectRatio,
+        this.value.isVertical,
+        this.unit
+      );
+      this.svgRenderTiles(
+        this.value.bounds,
+        this.value.zoom,
+        newVal,
+        width,
+        height
+      );
     }
   }
 };

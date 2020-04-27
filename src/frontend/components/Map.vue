@@ -5,6 +5,7 @@
 <script>
 import L from "leaflet";
 import "leaflet-areaselect/src/leaflet-areaselect.js";
+import aspectToWH from "../util.js";
 
 export default {
   data() {
@@ -16,14 +17,7 @@ export default {
   },
   computed: {
     dimensions: function() {
-      var splitRatio = this.aspectRatio.split(":");
-      var n = splitRatio[0];
-      var d = splitRatio[1];
-
-      return {
-        width: this.isVertical ? this.unit : (this.unit * n) / d,
-        height: this.isVertical ? (this.unit * n) / d : this.unit
-      };
+      return aspectToWH(this.aspectRatio, this.isVertical, this.unit);
     }
   },
   props: {
@@ -55,15 +49,14 @@ export default {
         'Tiles generated with <a href="https://openmaptiles.org/">OpenMapTiles</a> | Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
     }).addTo(map);
 
-    var splitRatio = this.aspectRatio.split(":");
-    var n = splitRatio[0];
-    var d = splitRatio[1];
-
-    var w = this.isVertical ? this.unit : (this.unit * n) / d;
-    var h = this.isVertical ? (this.unit * n) / d : this.unit;
+    var { width, height } = aspectToWH(
+      this.aspectRatio,
+      this.isVertical,
+      this.unit
+    );
     var areaSelect = L.areaSelect({
-      width: w,
-      height: h,
+      width,
+      height,
       keepAspectRatio: true
     });
     areaSelect.addTo(map);
