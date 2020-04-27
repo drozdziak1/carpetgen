@@ -5,12 +5,12 @@
       <p v-if="value === null">Select an area</p>
       <div v-else>
         <p>
-          North-west: {{ value.bounds.getNorthWest() }}<br />
+          Center: {{ value.bounds.getCenter() }}<br />
           Zoom: {{ value.zoom }}<br />
         </p>
         <button v-on:click="incZoom">Detail +</button>
         <button v-on:click="decZoom">Detail -</button>
-        <svg id="nw-tile"></svg>
+        <svg id="center-tile"></svg>
       </div>
     </div>
   </div>
@@ -20,10 +20,6 @@
 #picker-results {
   float: left;
   width: 50%;
-}
-#nw-tile {
-  width: 300px;
-  height: 300px;
 }
 </style>
 
@@ -44,51 +40,32 @@ export default {
   props: {
     value: Object
   },
-  computed: {
-    nwTileCoords: function() {
-      var { bounds, zoom } = this.value;
-      var nw = bounds.getNorthWest();
-      return { x: long2tile(nw.lng, zoom), y: lat2tile(nw.lat, zoom), z: zoom };
-    }
-  },
   methods: {
-    long2tile: function(lon, zoom) {
-      return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
-    },
-    lat2tile: function(lat, zoom) {
-      return Math.floor(
-        ((1 -
-          Math.log(
-            Math.tan((lat * Math.PI) / 180) +
-              1 / Math.cos((lat * Math.PI) / 180)
-          ) /
-            Math.PI) /
-          2) *
-          Math.pow(2, zoom)
-      );
-    },
     incZoom: function() {
-      if (this.value.zooom <= 14) {
+      if (this.value.zoom < 14) {
         this.value.zoom += 1;
       }
     },
     decZoom: function() {
-      if (this.value.zoom > 1) {
+      if (this.value.zoom > 7) {
         this.value.zoom -= 1;
       }
     },
     svgRenderTiles: function(bounds, zoom) {
-      var width = 100;
-      var height = 100;
-      var svg = d3.select("#nw-tile").attr("viewBox", [0, 0, width, height]);
+      var width = 300;
+      var height = 300;
+      var svg = d3
+        .select("#center-tile")
+        .attr("viewBox", [0, 0, width, height])
+        .attr("width", width)
+        .attr("height", height);
 
-      var nw = bounds.getNorthWest();
+      var center = bounds.getCenter();
 
       var projection = geoMercator()
-        .center([nw.lng, nw.lat])
-        .scale(Math.pow(2, zoom + 8) / (2 * Math.PI))
+        .center([center.lng, center.lat])
+        .scale(Math.pow(2, zoom + 7) / (2 * Math.PI))
         .translate([width / 2, height / 2])
-        /*.translate([width, height])*/
         .precision(0);
 
       svg

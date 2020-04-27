@@ -29,7 +29,7 @@ export default {
   data() {
     return {
       aspectRatio: "4:3",
-      isVertical: true,
+      isVertical: true
     };
   },
   components: {
@@ -37,7 +37,13 @@ export default {
   },
   methods: {
     updateAreaData: function(areaData) {
-      this.$emit("input", areaData);
+      var { bounds, zoom } = areaData;
+      this.$emit("input", {
+        bounds,
+        zoom,
+        aspectRatio: this.aspectRatio,
+        isVertical: this.isVertical
+      });
     }
   }
 };

@@ -17,7 +17,7 @@ export default {
   },
   data: function() {
     return {
-      areaData: null
+      areaData: null,
     };
   }
 };
