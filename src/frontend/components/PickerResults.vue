@@ -43,21 +43,22 @@ export default {
   },
   props: {
     value: Object,
-    unit: Number
+    unit: Number,
+    minZoom: Number,
+    maxZoom: Number,
   },
   methods: {
     incZoom: function() {
-      if (this.value.zoom + this.zoomDelta < 14) {
+      if (this.value.zoom + this.zoomDelta < this.maxZoom) {
         this.zoomDelta += 1;
       }
     },
     decZoom: function() {
-      if (this.value.zoom + this.zoomDelta > 7) {
+      if (this.value.zoom + this.zoomDelta > this.minZoom) {
         this.zoomDelta -= 1;
       }
     },
     svgRenderTiles: function(bounds, zoom, zoomDelta, width, height) {
-      console.log(`width: ${width}, height: ${height}`);
       var svg = d3
         .select("#center-tile")
         .attr("viewBox", [0, 0, width, height])
@@ -66,9 +67,11 @@ export default {
 
       var center = bounds.getCenter();
 
+      var scaleBase = Math.pow(2, zoom + 8);
+
       var projection = geoMercator()
         .center([center.lng, center.lat])
-        .scale(Math.pow(2, zoom + 7) / (2 * Math.PI))
+        .scale(scaleBase / (2 * Math.PI))
         .translate([width / 2, height / 2])
         .precision(0);
 
@@ -78,12 +81,14 @@ export default {
         .attr("height", height)
         .attr("fill", "#f6f4e7");
 
+      console.log(projection([0, 0]));
+
       var tile = d3Tile()
         .size([width, height])
-        .scale(projection.scale() * Math.PI * 2)
+        .scale(scaleBase)
         .translate(projection([0, 0]))
-        .tileSize(256)
-        .zoomDelta(zoomDelta);
+        .tileSize(512)
+        .zoomDelta(zoomDelta - 1);
 
       var tiles = Promise.all(
         tile().map(async d => {

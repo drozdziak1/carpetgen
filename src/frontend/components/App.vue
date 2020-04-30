@@ -1,8 +1,13 @@
 <template>
   <div id="app">
     <h1>CarpetGen</h1>
-    <AreaPicker v-model="areaData" />
-    <PickerResults v-model="areaData" :unit=200 />
+    <AreaPicker v-model="areaData" :min-zoom="minZoom" :max-zoom="maxZoom" />
+    <PickerResults
+      v-model="areaData"
+      :min-zoom="minZoom"
+      :max-zoom="maxZoom"
+      :unit="200"
+    />
   </div>
 </template>
 
@@ -18,6 +23,8 @@ export default {
   data: function() {
     return {
       areaData: null,
+      minZoom: 7,
+      maxZoom: 14,
     };
   }
 };

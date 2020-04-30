@@ -11,6 +11,8 @@
       :aspect-ratio="aspectRatio"
       :is-vertical="isVertical"
       :unit="200"
+      :min-zoom="minZoom"
+      :max-zoom="maxZoom"
       @area-change="updateAreaData"
     />
   </div>
@@ -32,6 +34,10 @@ export default {
       isVertical: true
     };
   },
+props: {
+  minZoom: Number,
+  maxZoom: Number,
+       },
   components: {
     Map
   },

@@ -23,7 +23,9 @@ export default {
   props: {
     aspectRatio: String,
     isVertical: Boolean,
-    unit: Number
+    unit: Number,
+    minZoom: Number,
+    maxZoom: Number
   },
   watch: {
     aspectRatio: function() {
@@ -39,14 +41,15 @@ export default {
   },
   mounted() {
     // Prepare a map with areaSelect
-    var map = L.map(this.$refs["mapEl"], { minZoom: 7, maxZoom: 14 }).setView(
-      [52.237049, 21.017532],
-      11
-    );
+    var map = L.map(this.$refs["mapEl"], {
+      minZoom: this.minZoom + 1,
+      maxZoom: this.maxZoom + 1
+    }).setView([52.237049, 21.017532], 11);
 
     L.tileLayer("http://localhost:8080/styles/basic-preview/{z}/{x}/{y}.png", {
       attribution:
-        'Tiles generated with <a href="https://openmaptiles.org/">OpenMapTiles</a> | Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+        'Tiles generated with <a href="https://openmaptiles.org/">OpenMapTiles</a> | Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>',
+      tileSize: 256
     }).addTo(map);
 
     var { width, height } = aspectToWH(
