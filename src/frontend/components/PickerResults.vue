@@ -2,7 +2,7 @@
   <div id="picker-results">
     <h2>Results</h2>
     <div id="result-data">
-      <p v-if="value === null">Select an area</p>
+      <p v-if="value.bounds === null">Select an area</p>
       <div v-else>
         <p>
           Center: {{ value.bounds.getCenter() }}<br />
@@ -45,20 +45,27 @@ export default {
     value: Object,
     unit: Number,
     minZoom: Number,
-    maxZoom: Number,
+    maxZoom: Number
   },
   methods: {
     incZoom: function() {
-      if (this.value.zoom + this.zoomDelta < this.maxZoom) {
+      if (this.value.zoom + this.zoomDelta < this.maxZoom + 2) {
         this.zoomDelta += 1;
       }
     },
     decZoom: function() {
-      if (this.value.zoom + this.zoomDelta > this.minZoom) {
+      if (this.value.zoom + this.zoomDelta > this.minZoom + 2) {
         this.zoomDelta -= 1;
       }
     },
-    svgRenderTiles: function(bounds, zoom, zoomDelta, width, height) {
+    svgRenderTiles: function(
+      bounds,
+      zoom,
+      zoomDelta,
+      width,
+      height,
+      boxScaleFactor
+    ) {
       var svg = d3
         .select("#center-tile")
         .attr("viewBox", [0, 0, width, height])
@@ -67,11 +74,12 @@ export default {
 
       var center = bounds.getCenter();
 
-      var scaleBase = Math.pow(2, zoom + 8);
+      var scaleBase = Math.pow(2, zoom + 8 - Math.log2(boxScaleFactor));
+      var projScale = scaleBase / (2 * Math.PI);
 
       var projection = geoMercator()
         .center([center.lng, center.lat])
-        .scale(scaleBase / (2 * Math.PI))
+        .scale(projScale)
         .translate([width / 2, height / 2])
         .precision(0);
 
@@ -83,12 +91,14 @@ export default {
 
       console.log(projection([0, 0]));
 
+      console.log("scaleBase: ", scaleBase);
+
       var tile = d3Tile()
-        .size([width, height])
+        .size([width * 2, height])
         .scale(scaleBase)
         .translate(projection([0, 0]))
         .tileSize(512)
-        .zoomDelta(zoomDelta - 1);
+        .zoomDelta(zoomDelta);
 
       var tiles = Promise.all(
         tile().map(async d => {
@@ -174,56 +184,19 @@ export default {
     }
   },
   watch: {
-    "value.bounds": function(newVal, oldVal) {
+    value: function(newVal, oldVal) {
       var { width, height } = aspectToWH(
-        this.value.aspectRatio,
-        this.value.isVertical,
+        newVal.aspectRatio,
+        newVal.isVertical,
         this.unit
       );
       this.svgRenderTiles(
-        newVal,
-        this.value.zoom,
+        newVal.bounds,
+        newVal.zoom,
         this.zoomDelta,
         width,
-        height
-      );
-    },
-    "value.zoom": function(newVal, oldVal) {
-      var { width, height } = aspectToWH(
-        this.value.aspectRatio,
-        this.value.isVertical,
-        this.unit
-      );
-      this.svgRenderTiles(
-        this.value.bounds,
-        newVal,
-        this.zoomDelta,
-        width,
-        height
-      );
-    },
-    "value.aspectRatio": function(newVal, oldVal) {
-      var { width, height } = aspectToWH(
-        newVal,
-        this.value.isVertical,
-        this.unit
-      );
-      this.svgRenderTiles(
-        this.value.bounds,
-        this.value.zoom,
-        this.zoomDelta,
-        width,
-        height
-      );
-    },
-    "value.isVErtical": function(newVal, oldVal) {
-      var { width, height } = aspectToWH(newVal, newVal, this.unit);
-      this.svgRenderTiles(
-        this.value.bounds,
-        this.value.zoom,
-        this.zoomDelta,
-        width,
-        height
+        height,
+        newVal.boxScaleFactor
       );
     },
     zoomDelta: function(newVal, oldVal) {
@@ -237,7 +210,8 @@ export default {
         this.value.zoom,
         newVal,
         width,
-        height
+        height,
+        this.value.boxScaleFactor
       );
     }
   }

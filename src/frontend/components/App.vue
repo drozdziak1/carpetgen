@@ -22,9 +22,15 @@ export default {
   },
   data: function() {
     return {
-      areaData: null,
+      areaData: {
+        bounds: null,
+        zoom: null,
+        aspectRatio: null,
+        isVertical: null,
+        boxScaleFactor: null
+      },
       minZoom: 7,
-      maxZoom: 14,
+      maxZoom: 14
     };
   }
 };

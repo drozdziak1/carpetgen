@@ -4,7 +4,7 @@
 
 <script>
 import L from "leaflet";
-import "leaflet-areaselect/src/leaflet-areaselect.js";
+import "@daczczcz1/leaflet-areaselect/src/leaflet-areaselect.js";
 import aspectToWH from "../util.js";
 
 export default {
@@ -18,6 +18,14 @@ export default {
   computed: {
     dimensions: function() {
       return aspectToWH(this.aspectRatio, this.isVertical, this.unit);
+    },
+    // ratio between original selection box size and current size. Used to
+    // translate selection corners into SVG render corners.
+    boxScaleFactor: function() {
+      var curWidth = this.areaSelect._width;
+      var oldWidth = this.dimensions.width;
+
+      return curWidth / oldWidth;
     }
   },
   props: {
@@ -73,7 +81,11 @@ export default {
       var bounds = this.getBounds();
       console.log("Bounds:", bounds);
       console.log("Zoom: ", map.getZoom());
-      comp.$emit("area-change", { bounds: bounds, zoom: map.getZoom() });
+      comp.$emit("area-change", {
+        bounds: bounds,
+        zoom: map.getZoom(),
+        boxScaleFactor: comp.boxScaleFactor
+      });
     });
 
     this.areaSelect = areaSelect;

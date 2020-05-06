@@ -43,12 +43,13 @@ props: {
   },
   methods: {
     updateAreaData: function(areaData) {
-      var { bounds, zoom } = areaData;
+      var { bounds, zoom, boxScaleFactor } = areaData;
       this.$emit("input", {
         bounds,
         zoom,
         aspectRatio: this.aspectRatio,
-        isVertical: this.isVertical
+        isVertical: this.isVertical,
+        boxScaleFactor
       });
     }
   }
