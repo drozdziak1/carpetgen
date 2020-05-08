@@ -1,2 +1,2 @@
 {pkgs}:
-with pkgs; [openssl pkgconfig nodejs yarn]
+with pkgs; [openssl pkgconfig nodejs yarn ]
