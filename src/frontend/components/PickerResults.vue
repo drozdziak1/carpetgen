@@ -6,7 +6,7 @@
       <div v-else>
         <p>
           Center: {{ value.bounds.getCenter() }}<br />
-          Zoom: {{ value.zoom }} + {{ zoomDelta }}<br />
+          Zoom: {{ value.zoom }} + {{ zoomDelta }} - {{ Math.log2(value.boxScaleFactor) }}<br />
         </p>
         <button v-on:click="incZoom">Detail +</button>
         <button v-on:click="decZoom">Detail -</button>
@@ -49,12 +49,12 @@ export default {
   },
   methods: {
     incZoom: function() {
-      if (this.value.zoom + this.zoomDelta < this.maxZoom + 2) {
+      if (this.value.zoom + this.zoomDelta + Math.log2(this.value.boxScaleFactor) < this.maxZoom + 1) {
         this.zoomDelta += 1;
       }
     },
     decZoom: function() {
-      if (this.value.zoom + this.zoomDelta > this.minZoom + 2) {
+      if (this.value.zoom + this.zoomDelta + Math.log2(this.value.boxScaleFactor) > this.minZoom + 1) {
         this.zoomDelta -= 1;
       }
     },
@@ -98,7 +98,7 @@ export default {
         .scale(scaleBase)
         .translate(projection([0, 0]))
         .tileSize(512)
-        .zoomDelta(zoomDelta);
+        .zoomDelta(zoomDelta + Math.log2(boxScaleFactor));
 
       var tiles = Promise.all(
         tile().map(async d => {

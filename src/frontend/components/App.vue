@@ -24,10 +24,10 @@ export default {
     return {
       areaData: {
         bounds: null,
-        zoom: null,
-        aspectRatio: null,
-        isVertical: null,
-        boxScaleFactor: null
+        zoom: 11,
+        aspectRatio: "4:3",
+        isVertical: true,
+        boxScaleFactor: 1 
       },
       minZoom: 7,
       maxZoom: 14
