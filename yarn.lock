@@ -3570,6 +3570,11 @@ through@^2.3.6:
   resolved "https://registry.yarnpkg.com/through/-/through-2.3.8.tgz#0dd4c9ffaabc357960b1b724115d7e0e86a2e1f5"
   integrity sha1-DdTJ/6q8NXlgsbckEV1+Doai4fU=
 
+tile-painter@^0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/tile-painter/-/tile-painter-0.3.5.tgz#0b17cf7639639b113a3eac53afa94926b2c17145"
+  integrity sha512-dSPKGUZ+eJq4XtDidk64v2a5Y+JtQS6aA7XtqqB+QtOgjaidnwThl8ZBdkNuLmaDrcjRSQw1/Yu7a4wFBVSpdQ==
+
 timers-browserify@^2.0.4:
   version "2.0.11"
   resolved "https://registry.yarnpkg.com/timers-browserify/-/timers-browserify-2.0.11.tgz#800b1f3eee272e5bc53ee465a04d0e804c31211f"
